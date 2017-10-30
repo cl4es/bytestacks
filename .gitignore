@@ -1,0 +1,10 @@
+**.zip
+**.iml
+**.svg
+**.stacks
+**.map
+FlameGraph/
+.idea/
+.gradle/
+stacks/
+build/
