@@ -1,5 +1,5 @@
 display_usage() { 
-  echo -e "\nUsage:\n trace.sh output [granularity] \n" 
+  echo -e "\nUsage:\n bytestacks output [granularity] \n" 
 } 
 if [ $# -le 0 ] ; then
   display_usage

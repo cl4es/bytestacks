@@ -20,7 +20,7 @@ tools that would attribute everything to "something in the interpreter".
 
 * Build: `./gradlew build`
 * With a fastdebug build of java, run any (small) program with `-XX:+TraceBytecodes`, e.g.: `java -XX:+TraceBytecodes HelloWorld > helloworld`
-* Run `./trace.sh helloworld` (this generates helloworld.stacks, which is fed to the FlameGraph tool to produce helloworld.svg)
+* Run `./bytestacks helloworld` (this generates helloworld.stacks, which is fed to the FlameGraph tool to produce helloworld.svg)
 * open `helloworld.svg` in your favorite SVG viewer. A modern web browser should suffice.
 
 ## Going deeper...
