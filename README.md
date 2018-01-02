@@ -1,4 +1,4 @@
-A tool to turn the output of -XX:+TraceBytecodes (a JDK debug-only feature to print every bytecode executed by the interpreter) into a simple stack format, and a script to turn that into flame graphs showing what happened during program execution, bytecode-by-bytecode: [Flame graph generated from running a Hello World program on 9-ea+157](flames.png)
+A tool to turn the output of -XX:+TraceBytecodes (a JDK debug-only feature to print every bytecode executed by the interpreter) into a simple stack format, and a script to turn that into flame graphs showing what happened during program execution, bytecode-by-bytecode: ![Flame graph generated from running a Hello World program on 9-ea+157](flames.png)
 
 # Who/what is this for?
 
