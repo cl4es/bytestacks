@@ -232,6 +232,9 @@ public class Bytestacks {
         }
 
         CallFrame enterFrame(String methodName) {
+            if (currentFrame == null) {
+                return ROOT;
+            }
             return currentFrame.callFrames.computeIfAbsent(methodName, name -> new CallFrame(name, currentFrame));
         }
     }
@@ -240,7 +243,7 @@ public class Bytestacks {
         String name;
         long bytecodes;
         CallFrame parent;
-        Map<String, CallFrame> callFrames = new TreeMap<>();
+        final Map<String, CallFrame> callFrames = new TreeMap<>();
 
         CallFrame(String name, CallFrame parent) {
             this.name = name;
