@@ -13,6 +13,6 @@ if [ $# -eq 1 ] ; then
   granularity=$2
 fi
 
-./gradlew build && java -cp build/classes/main org.openjdk.Bytestacks $1 $granularity > $1.stacks && ls -lart $1.stacks
+${JAVA_HOME}/bin/java -cp build/classes/main org.openjdk.Bytestacks $1 $granularity > $1.stacks && ls -lart $1.stacks
 FlameGraph/flamegraph.pl --cp $1.stacks > $1.svg
 
