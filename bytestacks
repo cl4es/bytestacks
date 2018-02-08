@@ -9,10 +9,10 @@ if [ ! -d FlameGraph ] ; then
   git clone https://github.com/brendangregg/FlameGraph.git
 fi
 granularity=25
-if [ $# -eq 1 ] ; then
+if [ $# -eq 2 ] ; then
   granularity=$2
 fi
 
-${JAVA_HOME}/bin/java -cp build/classes/main org.openjdk.Bytestacks $1 $granularity > $1.stacks && ls -lart $1.stacks
+${JAVA_HOME}/bin/java -Xss16m -cp build/classes/main org.openjdk.Bytestacks $1 $granularity > $1.stacks
 FlameGraph/flamegraph.pl --cp $1.stacks > $1.svg
 
