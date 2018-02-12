@@ -1,14 +1,30 @@
 group 'org.openjdk'
 version '1.0-SNAPSHOT'
 
-apply plugin: 'java'
-
-sourceCompatibility = 1.8
-
 repositories {
     mavenCentral()
 }
 
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+configurations {
+    // include in jar
+    classpath
+}
+
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    classpath 'net.sf.jopt-simple:jopt-simple:4.9'
+    testCompile 'junit:junit:4.11'
+    configurations.compile.extendsFrom(configurations.classpath)
+}
+
+jar {
+    baseName = 'bytestacks'
+    classifier = null
+    version = null
+    from {
+        configurations.classpath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

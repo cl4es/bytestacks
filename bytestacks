@@ -1,18 +1,13 @@
-display_usage() { 
-  echo -e "\nUsage:\n bytestacks output [granularity] \n" 
-} 
-if [ $# -le 0 ] ; then
-  display_usage
-  exit 1
-fi
-if [ ! -d FlameGraph ] ; then
-  git clone https://github.com/brendangregg/FlameGraph.git
-fi
-granularity=25
-if [ $# -eq 2 ] ; then
-  granularity=$2
-fi
+file=$1
+shift
+${JAVA_HOME}/bin/java -Xss16m -cp build/libs/bytestacks.jar org.openjdk.Bytestacks $file $* > $file.stacks
 
-${JAVA_HOME}/bin/java -Xss16m -cp build/classes/main org.openjdk.Bytestacks $1 $granularity > $1.stacks
-FlameGraph/flamegraph.pl --cp $1.stacks > $1.svg
+if [ $? -eq 0 ]
+then
+  # Download and run FlameGraph
+  if [ ! -d FlameGraph ] ; then
+    git clone https://github.com/brendangregg/FlameGraph.git
+  fi
+  FlameGraph/flamegraph.pl --cp $file.stacks > $file.svg
+fi
 

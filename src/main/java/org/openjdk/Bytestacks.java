@@ -30,11 +30,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 /**
  * Parses output of -XX:+TraceBytecodes (available in debug builds) and recreates
@@ -58,7 +63,7 @@ import java.util.stream.Stream;
  */
 public class Bytestacks {
 
-    private static int granularity = 25;
+    private static int granularity;
 
     private static boolean mainThreadOnly = false;
 
@@ -67,37 +72,47 @@ public class Bytestacks {
     private static Map<String, Boolean> unusedConstant = new TreeMap<>();
 
     public static void main(String ... args) throws IOException {
-        if (args.length != 1 && args.length != 2) {
-            System.out.println("usage: java Bytestacks filename [granularity|constants]");
-            System.exit(-1);
-        }
-        final Path path = Paths.get(args[0]);
-        if (args.length == 2) {
-            if (args[1].equals("constants")) {
-                scanUnusedConstants = true;
-            } else {
-                granularity = Integer.parseInt(args[1]);
+        OptionParser parser = new OptionParser();
+        OptionSpec<String> file = parser.nonOptions("file").ofType(String.class);
+        OptionSpec<Integer> granularityOption = parser.accepts("granularity").withOptionalArg().ofType(Integer.class).defaultsTo(25);
+        parser.accepts("constants");
+        try {
+            OptionSet options = parser.parse(args);
+            granularity = granularityOption.value(options);
+            List<String> files = file.values(options);
+            if (files.size() != 1) {
+                System.err.println("Specify exactly one file");
+                parser.printHelpOn(System.err);
+                System.exit(-1);
             }
-        }
-        final Stream<String> lines = Files.lines(path, StandardCharsets.ISO_8859_1);
-        StackMachine stackMachine = new StackMachine();
-        lines.forEach(line -> stackMachine.process(line));
-        if (scanUnusedConstants) {
-            System.out.println("Unused constants:");
-            unusedConstant.entrySet().stream().forEach(e -> {
-                if (e.getValue()) {
-                    String constant = e.getKey();
-                    int index = constant.indexOf(".");
-                    index = constant.indexOf('/', index) + 1;
-                    char c = constant.charAt(index);
-                    if ((c == '[' || c == 'L') && constant.indexOf("Ljava/lang/String") != index) {
-                        System.out.println(constant.substring(0, index - 1) + " (" + constant.substring(index) + ")");
+            final Path path = Paths.get(files.get(0));
+            scanUnusedConstants = options.has("constants");
+            final Stream<String> lines = Files.lines(path, StandardCharsets.ISO_8859_1);
+            StackMachine stackMachine = new StackMachine();
+            lines.forEach(line -> stackMachine.process(line));
+            if (scanUnusedConstants) {
+                System.out.println("Unused constants:");
+                unusedConstant.entrySet().stream().forEach(e -> {
+                    if (e.getValue()) {
+                        String constant = e.getKey();
+                        int index = constant.indexOf(".");
+                        index = constant.indexOf('/', index) + 1;
+                        char c = constant.charAt(index);
+                        if ((c == '[' || c == 'L') && constant.indexOf("Ljava/lang/String") != index) {
+                            System.out.println(constant.substring(0, index - 1) + " (" + constant.substring(index) + ")");
+                        }
                     }
-                }
-            });
-        } else {
-            ROOT.print();
+                });
+            } else {
+                ROOT.print();
+            }
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            parser.printHelpOn(System.err);
+            System.exit(-2);
         }
+
     }
 
     static final CallFrame ROOT = new CallFrame("root", null);
