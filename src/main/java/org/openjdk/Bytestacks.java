@@ -65,8 +65,14 @@ public class Bytestacks {
                 System.exit(-1);
             }
             final Path path = Paths.get(files.get(0));
+            final Stream<String> lines;
+
+            if (Files.exists(path)) {
+              lines = Files.lines(path, StandardCharsets.ISO_8859_1);
+            } else {
+              lines = new BufferedReader(new InputStreamReader(System.in)).lines();
+            }
             scanUnusedConstants = options.has("constants");
-            final Stream<String> lines = Files.lines(path, StandardCharsets.ISO_8859_1);
             StackMachine stackMachine = new StackMachine();
             lines.forEach(line -> stackMachine.process(line));
             if (scanUnusedConstants) {

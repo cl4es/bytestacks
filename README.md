@@ -23,6 +23,12 @@ tools that would attribute everything to "something in the interpreter".
 * Run `./bytestacks helloworld` (this generates helloworld.stacks, which is fed to the FlameGraph tool to produce helloworld.svg)
 * open `helloworld.svg` in your favorite SVG viewer. A modern web browser should suffice.
 
+You can bypass the creation of the raw tracebytecodes output (`helloworld`) by piping the `java -XX:+TraceBytecodes` to the bytestacks script:
+
+* `$JAVA_HOME/bin/java -XX:+TraceBytecodes HelloWorld | bytestacks /path/to/output/helloworld` - which would generate `/path/to/output/helloworld.stacks` and `/path/to/output/helloworld.svg`
+
+This saves some disk space and is faster.
+
 ## Going deeper...
 
 * To get the full picture of what's going on, especially on a longer running program, it might be interesting to run your program with <code>-Xint</code>, since
