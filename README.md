@@ -23,11 +23,10 @@ tools that would attribute everything to "something in the interpreter".
   * This generates `helloworld.stacks` and `helloworld.svg` only. 
 * open `helloworld.svg` in your favorite SVG viewer. A modern web browser should suffice.
 
-By not saving the raw output of the tracing to a file we speed things up and avoid rapidly filling up our drives, but if you need to debug it you can split the above apart:
+By not retaining the trace output we'll run a lot faster and we avoid wasting disk space, but if you need the tracing output it's easy to split the steps apart:
+
 * Run `java -XX:TraceBytecodes > helloworld` (this dumps the raw tracing output to `helloworld`
 * Run `./bytestacks helloworld` (this generates `helloworld.stacks` and uses `FlameGraph` to produce `helloworld.svg`)
-
-* `$JAVA_HOME/bin/java -XX:+TraceBytecodes HelloWorld | bytestacks /path/to/output/helloworld`
 
 ## Going deeper...
 
