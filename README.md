@@ -19,15 +19,15 @@ tools that would attribute everything to "something in the interpreter".
 # Usage
 
 * Build: `./gradlew build`
-* With a fastdebug build of java, run any (small) program with `-XX:+TraceBytecodes`, e.g.: `java -XX:+TraceBytecodes HelloWorld > helloworld`
-* Run `./bytestacks helloworld` (this generates helloworld.stacks, which is fed to the FlameGraph tool to produce helloworld.svg)
+* With a fastdebug build of java, run any (small) program with `-XX:+TraceBytecodes`, e.g.: `java -XX:+TraceBytecodes HelloWorld | ./bytestacks helloworld`
+  * This generates `helloworld.stacks` and `helloworld.svg` only. 
 * open `helloworld.svg` in your favorite SVG viewer. A modern web browser should suffice.
 
-You can bypass the creation of the raw tracebytecodes output (`helloworld`) by piping the `java -XX:+TraceBytecodes` to the bytestacks script:
+By not saving the raw output of the tracing to a file we speed things up and avoid rapidly filling up our drives, but if you need to debug it you can split the above apart:
+* Run `java -XX:TraceBytecodes > helloworld` (this dumps the raw tracing output to `helloworld`
+* Run `./bytestacks helloworld` (this generates `helloworld.stacks` and uses `FlameGraph` to produce `helloworld.svg`)
 
-* `$JAVA_HOME/bin/java -XX:+TraceBytecodes HelloWorld | bytestacks /path/to/output/helloworld` - which would generate `/path/to/output/helloworld.stacks` and `/path/to/output/helloworld.svg`
-
-This saves some disk space and is faster.
+* `$JAVA_HOME/bin/java -XX:+TraceBytecodes HelloWorld | bytestacks /path/to/output/helloworld`
 
 ## Going deeper...
 
