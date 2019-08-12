@@ -48,6 +48,8 @@ public class Bytestacks {
 
     private static boolean scanUnusedConstants = false;
 
+    private static boolean exaggerateClassLoads = false;
+
     private static Map<String, Boolean> unusedConstant = new TreeMap<>();
 
     public static void main(String ... args) throws IOException {
@@ -55,6 +57,7 @@ public class Bytestacks {
         OptionSpec<String> file = parser.nonOptions("file").ofType(String.class);
         OptionSpec<Integer> granularityOption = parser.accepts("granularity").withOptionalArg().ofType(Integer.class).defaultsTo(25);
         parser.accepts("constants");
+        parser.accepts("class-load");
         try {
             OptionSet options = parser.parse(args);
             granularity = granularityOption.value(options);
@@ -73,6 +76,7 @@ public class Bytestacks {
               lines = new BufferedReader(new InputStreamReader(System.in)).lines();
             }
             scanUnusedConstants = options.has("constants");
+            exaggerateClassLoads = options.has("class-load");
             StackMachine stackMachine = new StackMachine();
             lines.forEach(line -> stackMachine.process(line));
             if (scanUnusedConstants) {
@@ -253,7 +257,15 @@ public class Bytestacks {
         long print() {
             long weight = callFrames.entrySet().stream().mapToLong(e -> e.getValue().print()).sum();
             if (name.equals("root")) { return 0L; }
-            weight += bytecodes;
+            if (exaggerateClassLoads) {
+                if (name.endsWith("<clinit>()")) {
+                    weight += 10000;
+                } else {
+                    weight += 1;
+                }
+            } else {
+                weight += bytecodes;
+            }
             if (weight < granularity) { return weight; }
 
             CallFrame p = parent;

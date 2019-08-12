@@ -2,7 +2,7 @@
 cd "${0%/*}"
 file=$1
 shift
-${JAVA_HOME}/bin/java -Xss16m -cp build/libs/bytestacks.jar org.openjdk.Bytestacks $file $* <&0 > $file.stacks
+${JAVA_HOME}/bin/java -Xss16m -cp build/libs/bytestacks.jar org.openjdk.Bytestacks $* $file <&0 > $file.stacks
 
 if [ $? -eq 0 ]
 then
