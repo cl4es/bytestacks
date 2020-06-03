@@ -16,14 +16,14 @@ configurations {
 
 dependencies {
     classpath 'net.sf.jopt-simple:jopt-simple:4.9'
-    testCompile 'junit:junit:4.11'
+    testImplementation 'junit:junit:4.11'
     configurations.compile.extendsFrom(configurations.classpath)
 }
 
 jar {
-    baseName = 'bytestacks'
+    archiveBaseName = 'bytestacks'
     classifier = null
-    version = null
+    archiveVersion = null
     from {
         configurations.classpath.collect { it.isDirectory() ? it : zipTree(it) }
     }
