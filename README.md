@@ -23,6 +23,13 @@ jabba install fastdebug@11=tgz+https://www.chriswhocodes.com/downloads/jdk11-chr
 jabba use fastdebug@11
 ```
 
+Jabba also supports XZ format, so you can download nightly and 15 builds:
+
+```
+jabba install shipilev-fastdebug@nightly=tgx+builds.shipilev.net/openjdk-jdk/openjdk-jdk-latest-linux-x86_64-fastdebug.tar.xz
+jabba install shipilev-fastdebug@15=tgx+https://builds.shipilev.net/openjdk-jdk15/openjdk-jdk15-latest-linux-x86_64-fastdebug.tar.xz
+```
+
 # Usage
 
 * Build: `./gradlew build`
