@@ -113,8 +113,14 @@ public class Bytestacks {
         HashMap<String, CallFrame> previousStacks = new HashMap<>();
         HashMap<String, Boolean> throwStacks = new HashMap<>();
         String previousLine = "";
+        int previousCounter = -1;
+
         CallFrame currentFrame = null;
+        CallFrame previousFrame = null;
         String currentThread = null;
+
+        // Use as a marker when transitioning into a method
+        private static String METHOD_ENTRY = "METHOD_ENTRY";
 
         void process(String line) {
             line = line.trim();
@@ -124,6 +130,7 @@ public class Bytestacks {
             if (blankPrevious && blankCurrent) return;
             if (blankCurrent) {
                 if (previousLine.endsWith("return") || previousLine.endsWith("return_register_finalizer") || previousLine.contains("goto")) {
+                    previousFrame = currentFrame;
                     currentFrame = currentFrame.parent;
                     threadStacks.put(currentThread, currentFrame);
                     throwStacks.put(currentThread, false);
@@ -145,6 +152,7 @@ public class Bytestacks {
                     return;
                 } else {
                     currentThread = thread;
+                    previousFrame = currentFrame;
                     currentFrame = threadStacks.computeIfAbsent(thread, t -> { previousStacks.put(currentThread, ROOT); return ROOT; });
 
                     int start = start(line);
@@ -170,7 +178,7 @@ public class Bytestacks {
                             threadStacks.put(currentThread, currentFrame);
                         } else {
                             // no luck... best effort assign whatever the
-                            // thread keeps doing to the parent frame 
+                            // thread keeps doing to the parent frame
                             currentFrame = originalFrame.parent;
                             currentFrame = enterFrame(methodName);
                             threadStacks.put(currentThread, currentFrame);
@@ -192,9 +200,19 @@ public class Bytestacks {
                             threadStacks.put(currentThread, currentFrame);
                         }
                     }
+                    line = METHOD_ENTRY;
                 }
             } else {
-                currentFrame.bytecodes++;
+                int counter = parseCounter(line);
+                if (previousLine == METHOD_ENTRY) {
+                    if (previousFrame != null && previousCounter > 0) {
+                        previousFrame.bytecodes += counter - previousCounter - 1;
+                    }
+                    currentFrame.bytecodes++;
+                } else {
+                    currentFrame.bytecodes += counter - previousCounter;
+                }
+                previousCounter = counter;
                 if (scanUnusedConstants) {
                     if (line.contains("putstatic")) {
                         String constant = line.substring(line.indexOf('<') + 1, line.indexOf('>'));
@@ -233,6 +251,22 @@ public class Bytestacks {
             index = line.indexOf(" ", index) + 1;
             index = line.indexOf(" ", index) + 1;
             return index;
+        }
+
+        int parseCounter(String line) {
+            int start = line.indexOf(" ") + 1;
+            while (line.charAt(start) == ' ') {
+                start++;
+            }
+            int end = line.indexOf(" ", start);
+            try {
+                return Integer.parseInt(line.substring(start, end));
+            } catch (Exception e) {
+                // Not a regular counter line, happens for the bytecode trace epilogue
+                // e.g, "[BytecodeCounter::counter_value = 14942143]". Returning the previous
+                // counter value avoids advancing the bytecode count on the current frame
+                return previousCounter;
+            }
         }
 
         CallFrame enterFrame(String methodName) {
