@@ -39,7 +39,7 @@ jabba install shipilev-fastdebug@15=tgx+https://builds.shipilev.net/openjdk-jdk1
 
 By not retaining the trace output we'll run a lot faster and we avoid wasting disk space, but if you need the tracing output it's easy to split the steps apart:
 
-* Run `java -XX:TraceBytecodes > helloworld` (this dumps the raw tracing output to `helloworld`
+* Run `java -XX:+TraceBytecodes > helloworld` (this dumps the raw tracing output to `helloworld`
 * Run `./bytestacks helloworld` (this generates `helloworld.stacks` and uses `FlameGraph` to produce `helloworld.svg`)
 
 ## Going deeper...
