@@ -129,21 +129,15 @@ public class Bytestacks {
             boolean blankCurrent = line.isEmpty();
             if (blankPrevious && blankCurrent) return;
             if (blankCurrent) {
-                if (previousLine.endsWith("return") || previousLine.endsWith("return_register_finalizer") || previousLine.contains("goto")) {
-                    previousFrame = currentFrame;
-                    currentFrame = currentFrame.parent;
-                    threadStacks.put(currentThread, currentFrame);
-                    throwStacks.put(currentThread, false);
-                } else {
-                    if (previousLine.endsWith("throw")) {
-                        threadStacks.put(currentThread, currentFrame);
-                        throwStacks.put(currentThread, true);
-                    }
-                }
+                finishPreviousBlock();
             } else if (!line.startsWith("[")) {
                 // Junk data, e.g., constant strings over multiple lines
                 return;
-            } else if (blankPrevious) {
+            } else if (blankPrevious || isMethodEntry(line)) {
+                if (!blankPrevious) {
+                    // TraceBytecodes no longer emits a blank line before a method entry.
+                    finishPreviousBlock();
+                }
                 String thread = thread(line);
                 if (mainThread == null) { mainThread = thread; }
                 if (mainThreadOnly && !mainThread.equals(thread)) { return; }
@@ -224,6 +218,26 @@ public class Bytestacks {
                 }
             }
             previousLine = line;
+        }
+
+        private void finishPreviousBlock() {
+            if (previousLine.endsWith("return") || previousLine.endsWith("return_register_finalizer") || previousLine.contains("goto")) {
+                previousFrame = currentFrame;
+                currentFrame = currentFrame.parent;
+                threadStacks.put(currentThread, currentFrame);
+                throwStacks.put(currentThread, false);
+            } else if (previousLine.endsWith("throw")) {
+                threadStacks.put(currentThread, currentFrame);
+                throwStacks.put(currentThread, true);
+            }
+        }
+
+        private boolean isMethodEntry(String line) {
+            int start = start(line);
+            int end = line.indexOf(')', start);
+            return start > 0 && start < line.length() && end != -1
+                    && (line.regionMatches(start, "  ", 0, 2)
+                    || Character.isAlphabetic(line.codePointAt(start)));
         }
 
         private boolean threwException() {

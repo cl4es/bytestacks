@@ -28,7 +28,6 @@ dependencies {
 tasks.named('jar') {
     archiveBaseName.set('bytestacks')
     archiveClassifier.set('')
-    archiveVersion.set('')
     from {
         configurations.classpath.collect { it.isDirectory() ? it : zipTree(it) }
     }
