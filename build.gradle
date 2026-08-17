@@ -1,13 +1,18 @@
-group 'org.openjdk'
-version '1.0-SNAPSHOT'
+plugins {
+    id 'java'
+}
+
+group = 'org.openjdk'
+version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
-apply plugin: 'java'
-
-sourceCompatibility = 1.8
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 configurations {
     // include in jar
@@ -20,10 +25,10 @@ dependencies {
     configurations.implementation.extendsFrom(configurations.classpath)
 }
 
-jar {
-    archiveBaseName = 'bytestacks'
-    classifier = null
-    archiveVersion = null
+tasks.named('jar') {
+    archiveBaseName.set('bytestacks')
+    archiveClassifier.set('')
+    archiveVersion.set('')
     from {
         configurations.classpath.collect { it.isDirectory() ? it : zipTree(it) }
     }
