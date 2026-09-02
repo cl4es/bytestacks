@@ -52,4 +52,4 @@ as things start to get compiled they will disappear from view.
 
 ## References
 
-* [FlameGraph](https://github.com/brendangregg/FlameGraph) by [@brendangregg](https://twitter.com/brendangregg)
+* [FlameGraph](https://github.com/brendangregg/FlameGraph)
