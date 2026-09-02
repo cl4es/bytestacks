@@ -13,26 +13,42 @@ early initialization of a JVM, e.g., agent based instrumentation, JFR etc, or th
 tools that would attribute everything to "something in the interpreter".
 
 # Requirements
-* git and perl required to get FlameGraph working</li>
+* Perl is required to run FlameGraph.
+* Git and access to GitHub are required on the first run unless FlameGraph is
+  already present in the `FlameGraph` directory next to the `bytestacks`
+  launcher.
 * a fastdebug (recommended) or slowdebug build of OpenJDK
 
 # Usage
 
 * Build: `./gradlew build`
-* With a fastdebug build of java, run any (small) program with `-XX:+TraceBytecodes`, e.g.: `java -XX:+TraceBytecodes HelloWorld | ./bytestacks helloworld`
+* With a fastdebug build of java, run any (small) program with `-XX:+TraceBytecodes -XX:+IgnoreUnrecognizedVMOptions -XX:+TraceBytecodesTruncated`, 
+ e.g.: `java -XX:+TraceBytecodes -XX:+IgnoreUnrecognizedVMOptions -XX:+TraceBytecodesTruncated HelloWorld | ./bytestacks helloworld`
+  * On first use the launcher clones
+    [FlameGraph](https://github.com/brendangregg/FlameGraph) into
+    `./FlameGraph` if not already present.
   * This generates `helloworld.stacks` and `helloworld.svg` only. 
-* open `helloworld.svg` in your favorite SVG viewer. A modern web browser should suffice.
+* Open `helloworld.svg` in your favorite SVG viewer. A modern web browser should suffice.
 
-By not retaining the trace output we'll run a lot faster and we avoid wasting disk space, but if you need the tracing output it's easy to split the steps apart:
+## Bundling for offline use
 
-* Run `java -XX:+TraceBytecodes > helloworld` (this dumps the raw tracing output to `helloworld`
-* Run `./bytestacks helloworld` (this generates `helloworld.stacks` and uses `FlameGraph` to produce `helloworld.svg`)
+To build a distributable intended to run without GitHub access you must include the FlameGraph
+checkout alongside the launcher:
+
+```shell
+git clone --depth 1 https://github.com/brendangregg/FlameGraph.git FlameGraph
+```
+
+The resulting layout must contain both `./bytestacks` and
+`./FlameGraph/flamegraph.pl`.
 
 ## Going deeper...
 
-* To get the full picture of what's going on, especially on a longer running program, it might be interesting to run your program with <code>-Xint</code>, since
-as things start to get compiled they will disappear from view...
-* For performance reasons there is a granularity option which allows setting a threshold for how small methods are output in the stack output, defaulting to 25. By setting this to a lower value, the generated flame graph will become more detailed, but may also become very heavy to render
+* To get the full picture of what's going on, especially on a longer running program, it can be enlightening to run your program with <code>-Xint</code>, since
+as things start to get compiled they will disappear from view.
+* For performance reasons there is a granularity option which allows setting a threshold for how small
+  methods are output in the stack output, defaulting to 25. 
+  By setting this to a lower value, the generated flame graph will become more detailed, but may also become very heavy to render.
 
 ## References
 

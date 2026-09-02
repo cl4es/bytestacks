@@ -6,10 +6,16 @@ ${JAVA_HOME}/bin/java -Xss16m -cp build/libs/bytestacks-1.0-SNAPSHOT.jar org.ope
 
 if [ $? -eq 0 ]
 then
-  # Download and run FlameGraph
-  if [ ! -d FlameGraph ] ; then
-    git clone https://github.com/brendangregg/FlameGraph.git
+  flamegraph=FlameGraph/flamegraph.pl
+  if [ ! -x "${flamegraph}" ] ; then
+    if [ -e FlameGraph ] ; then
+      echo "FlameGraph exists but ${flamegraph} is missing or not executable" >&2
+      exit 1
+    fi
+    if ! git clone --depth 1 https://github.com/brendangregg/FlameGraph.git FlameGraph ; then
+      echo "Unable to download FlameGraph; clone it into $(pwd)/FlameGraph or use a bundle that includes it" >&2
+      exit 1
+    fi
   fi
-  FlameGraph/flamegraph.pl --cp $file.stacks > $file.svg
+  "${flamegraph}" --cp $file.stacks > $file.svg
 fi
-
